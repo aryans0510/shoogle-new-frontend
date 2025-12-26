@@ -1,0 +1,292 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model User {
+    id                     String                @id @default(uuid()) @db.Uuid
+    name                   String                @db.VarChar(255)
+    email                  String?               @unique @db.VarChar(255)
+    phone                  String?               @unique @db.VarChar(20)
+    password_hash          String?               @db.VarChar(255)
+    address                String?
+    last_sign_in           DateTime?             @db.Timestamptz(3)
+    identities             Identity[]
+    listing_reactions      ListingReaction[]
+    seller_profile         Seller?
+    user_devices           UserDevice[]
+    user_event_preferences UserEventPreference[]
+    created_at             DateTime?             @default(now()) @db.Timestamptz(3)
+    updated_at             DateTime?             @db.Timestamptz(3)
+    listing                Listing[]
+
+    @@map("users")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Identity {
+    id          String    @id @default(uuid()) @db.Uuid
+    provider_id String    @db.VarChar(255)
+    provider    providers
+    created_at  DateTime? @default(now()) @db.Timestamptz(3)
+    updated_at  DateTime? @db.Timestamptz(3)
+    users       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+    user_id     String    @db.Uuid
+
+    @@unique([provider_id, provider], map: "identities_provider_id_provider_unique")
+    @@index([user_id])
+    @@map("identities")
+}
+
+// A user can have a seller profile.
+model Seller {
+    id                                                  String                @id @db.Uuid
+    avatar_url                                          String?
+    business_name                                       String?
+    whatsapp_number                                     String?
+    latitude                                            Decimal?              @db.Decimal(11, 8)
+    longitude                                           Decimal?              @db.Decimal(11, 8)
+    location                                            String?
+    last_seen_at                                        DateTime?             @db.Timestamptz(3)
+    is_verified                                         Boolean?              @default(false)
+    verified_at                                         DateTime?             @db.Timestamptz(3)
+    description                                         String?
+    instagram                                           String?
+    facebook                                            String?
+    website                                             String?
+    background_photo_url                                String?
+    address                                             String?
+    business_hours                                      String?
+    categories                                          String[]
+    pro_status                                          Boolean?              @default(false)
+    subscription_plan                                   subscriptionPlan      @default(free)
+    business_customers                                  BusinessCustomer[]
+    user                                                User                  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+    promotional_campaigns                               PromotionalCampaign[]
+    review_replies                                      ReviewReply[]
+    reviews                                             Review[]
+    seller_reviews_seller_reviews_reviewer_idToprofiles SellerReview[]        @relation("seller_reviews_reviewer_idToprofiles")
+    seller_reviews_seller_reviews_seller_idToprofiles   SellerReview[]        @relation("seller_reviews_seller_idToprofiles")
+
+    @@map("seller")
+}
+
+/// Previous customers of a seller. Used to show analytics to the seller
+model BusinessCustomer {
+    id             String    @id @default(uuid()) @db.Uuid
+    business_id    String    @db.Uuid
+    name           String?   @db.VarChar(255)
+    email          String?   @unique @db.VarChar(255)
+    phone          String?   @db.VarChar(20)
+    created_at     DateTime? @default(now()) @db.Timestamptz(3)
+    seller_profile Seller    @relation(fields: [business_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@map("business_customers")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model Listing {
+    id                   String              @id @default(uuid()) @db.Uuid
+    user_id              String              @db.Uuid
+    title                String
+    description          String?
+    category             Category
+    availability         ListingAvailability
+    price                Decimal?            @db.Decimal
+    location             String?
+    tags                 String[]
+    media_urls           String[]
+    review_count         Int?                @default(0)
+    average_rating       Decimal?            @default(0) @db.Decimal(2, 1)
+    visible_in_discovery Boolean?            @default(false)
+    status               String?             @default("active")
+    like_count           Int?                @default(0)
+    dislike_count        Int?                @default(0)
+    user                 User                @relation(fields: [user_id], references: [id])
+    listing_keywords     ListingKeyword[]
+    listing_reactions    ListingReaction[]
+    reviews              Review[]
+    created_at           DateTime?           @default(now()) @db.Timestamptz(3)
+    updated_at           DateTime?           @default(now()) @db.Timestamptz(3)
+
+    @@map("listings")
+}
+
+model ListingKeyword {
+    id         String   @id @default(uuid()) @db.Uuid
+    listing_id String   @db.Uuid
+    keyword    String
+    created_at DateTime @default(now()) @db.Timestamptz(3)
+    listings   Listing  @relation(fields: [listing_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@index([keyword(ops: raw("gin_trgm_ops"))], map: "idx_listing_keywords_keyword", type: Gin)
+    @@index([listing_id], map: "idx_listing_keywords_listing_id")
+    @@map("listing_keywords")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model ListingReaction {
+    id            String    @id @default(uuid()) @db.Uuid
+    user_id       String    @db.Uuid
+    listing_id    String    @db.Uuid
+    reaction_type String
+    created_at    DateTime? @default(now()) @db.Timestamptz(3)
+    updated_at    DateTime? @default(now()) @db.Timestamptz(3)
+    listings      Listing   @relation(fields: [listing_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+    users         User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@unique([user_id, listing_id])
+    @@map("listing_reactions")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model Review {
+    id             String        @id @default(uuid()) @db.Uuid
+    listing_id     String        @db.Uuid
+    buyer_id       String        @db.Uuid
+    rating         Int
+    comment        String?
+    created_at     DateTime      @default(now()) @db.Timestamptz(3)
+    updated_at     DateTime      @default(now()) @db.Timestamptz(3)
+    category       String?
+    review_replies ReviewReply[]
+    seller_profile Seller        @relation(fields: [buyer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_buyer_profile")
+    listings       Listing       @relation(fields: [listing_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_listing")
+
+    @@map("reviews")
+}
+
+model ReviewReply {
+    id             String   @id @default(uuid()) @db.Uuid
+    review_id      String   @db.Uuid
+    seller_id      String   @db.Uuid
+    reply          String
+    created_at     DateTime @default(now()) @db.Timestamptz(3)
+    updated_at     DateTime @default(now()) @db.Timestamptz(3)
+    reviews        Review   @relation(fields: [review_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_review")
+    seller_profile Seller   @relation(fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_seller_profile")
+
+    @@map("review_replies")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model SellerReview {
+    id                                            String   @id @default(uuid()) @db.Uuid
+    seller_id                                     String   @db.Uuid
+    reviewer_id                                   String   @db.Uuid
+    rating                                        Int
+    comment                                       String?
+    created_at                                    DateTime @default(now()) @db.Timestamptz(3)
+    updated_at                                    DateTime @default(now()) @db.Timestamptz(3)
+    profiles_seller_reviews_reviewer_idToprofiles Seller   @relation("seller_reviews_reviewer_idToprofiles", fields: [reviewer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+    profiles_seller_reviews_seller_idToprofiles   Seller   @relation("seller_reviews_seller_idToprofiles", fields: [seller_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@map("seller_reviews")
+}
+
+model Community {
+    id                    String                @id @default(uuid()) @db.Uuid
+    name                  String
+    description           String?
+    join_code             String                @unique
+    created_by            String                @db.Uuid
+    created_at            DateTime              @default(now()) @db.Timestamptz(3)
+    community_memberships CommunityMembership[]
+
+    @@map("communities")
+}
+
+model CommunityMembership {
+    id           String    @id @default(uuid()) @db.Uuid
+    user_id      String    @db.Uuid
+    community_id String    @db.Uuid
+    joined_at    DateTime  @default(now()) @db.Timestamptz(3)
+    communities  Community @relation(fields: [community_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@unique([user_id, community_id])
+    @@map("community_memberships")
+}
+
+model Event {
+    id          String    @id @default(uuid()) @db.Uuid
+    name        String
+    description String?
+    type        String
+    location    String?
+    latitude    Float?
+    longitude   Float?
+    start_time  DateTime  @db.Timestamptz(3)
+    end_time    DateTime? @db.Timestamptz(3)
+    created_at  DateTime? @default(now()) @db.Timestamptz(3)
+    updated_at  DateTime? @default(now()) @db.Timestamptz(3)
+
+    @@map("events")
+}
+
+model UserDevice {
+    id           String    @id @default(uuid()) @db.Uuid
+    user_id      String    @db.Uuid
+    device_token String
+    platform     String?
+    created_at   DateTime? @default(now()) @db.Timestamptz(3)
+    users        User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@map("user_devices")
+}
+
+model UserEventPreference {
+    id         String    @id @default(uuid()) @db.Uuid
+    user_id    String    @db.Uuid
+    event_type String
+    muted      Boolean?  @default(false)
+    created_at DateTime? @default(now()) @db.Timestamptz(3)
+    users      User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@map("user_event_preferences")
+}
+
+model PromotionalCampaign {
+    id             String    @id @default(uuid()) @db.Uuid
+    business_id    String    @db.Uuid
+    message        String
+    send_via       String[]
+    status         String    @default("pending")
+    created_at     DateTime? @default(now()) @db.Timestamptz(3)
+    sent_at        DateTime? @db.Timestamptz(3)
+    seller_profile Seller    @relation(fields: [business_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+    @@map("promotional_campaigns")
+}
+
+enum providers {
+    email
+    google
+    truecaller
+}
+
+enum subscriptionPlan {
+    free
+    pro
+    enterprise
+}
+
+enum Category {
+    Electronics
+    Appliances
+    Services
+    Clothing
+    Toys
+    Art
+    Health
+    Other
+}
+
+enum ListingAvailability {
+    pickup
+    delivery
+    both
+}
