@@ -1,5 +1,8 @@
 import { MessageCircle, Heart, Mail, MapPin, Phone, Github, Twitter, Linkedin, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { Link } from "react-router";
+import logo from "@/assets/loader.png";
 
 const Footer = () => {
   const footerLinks = {
@@ -30,18 +33,48 @@ const Footer = () => {
   };
 
   return (
-    <footer className="border-t bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-8 sm:px-8 lg:px-12">
+    <footer className="relative border-t bg-gradient-to-b from-blue-50/40 via-blue-50/20 to-white/80 backdrop-blur-md overflow-hidden">
+      <div className="relative mx-auto max-w-7xl px-6 py-8 sm:px-8 lg:px-12">
         {/* Main Footer Content */}
         <div className="mb-16 grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-6">
           {/* Brand Section */}
           <div className="lg:col-span-2">
-            <div className="mb-6 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                <MessageCircle className="h-6 w-6" />
-              </div>
-              <span className="text-2xl font-bold tracking-tight">shoogle</span>
-            </div>
+            <Link to="/" className="mb-6 flex items-center gap-3 group">
+              <motion.div
+                initial={{ rotate: -360, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                transition={{
+                  rotate: { duration: 1, ease: "easeOut" },
+                  opacity: { duration: 0.5, delay: 0.5 }
+                }}
+                whileHover={{ 
+                  rotate: 360,
+                  scale: 1.1,
+                  transition: { duration: 0.6, ease: "easeInOut" }
+                }}
+                className="relative flex-shrink-0"
+              >
+                {/* Blue glow effect */}
+                <div className="absolute inset-0 rounded-full bg-primary/30 blur-xl animate-pulse" />
+                <img
+                  src={logo}
+                  alt="Shoogle logo"
+                  className="relative h-12 w-12 rounded-full border-2 border-primary/30 shadow-lg shadow-primary/20 transition-all group-hover:border-primary/50 group-hover:shadow-primary/40"
+                />
+              </motion.div>
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{
+                  delay: 1,
+                  duration: 0.5,
+                  ease: "easeOut"
+                }}
+                className="text-2xl font-bold tracking-tight text-primary transition-colors group-hover:text-primary/80"
+              >
+                shoogle
+              </motion.span>
+            </Link>
             <p className="mb-8 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Your friendly AI marketplace where buying and selling happens through simple
               conversations. Discover anything, sell everything.

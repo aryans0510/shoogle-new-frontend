@@ -105,13 +105,14 @@ export function Header() {
 
     return (
         <>
-            <header
-                className={cn('sticky top-0 z-50 w-full bg-gradient-to-b from-purple-50/30 via-pink-50/10 to-transparent backdrop-blur-md transition-all duration-300', {
-                    'bg-white/70 supports-[backdrop-filter]:bg-white/60 border-b border-gray-200/50 backdrop-blur-lg':
+            <header className="sticky top-0 z-50 w-full">
+                <div className={cn('mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6', {
+                    'pt-2 sm:pt-3': scrolled,
+                })}>
+                <nav className={cn('flex h-16 w-full items-center justify-between relative rounded-2xl sm:rounded-3xl bg-gradient-to-b from-purple-50/30 via-pink-50/10 to-transparent backdrop-blur-md transition-all duration-300 shadow-sm mx-auto max-w-[95%] sm:max-w-[90%] px-4 sm:px-6 lg:px-8', {
+                    'bg-white/70 supports-[backdrop-filter]:bg-white/60 border border-gray-200/50 backdrop-blur-lg':
                         scrolled,
-                })}
-            >
-                <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 relative">
+                })}>
                     {/* Logo - Left */}
                     <div className="flex-shrink-0 z-10">
                         <NavbarLogo />
@@ -166,6 +167,7 @@ export function Header() {
                         <MenuToggleIcon open={open} className="size-6" duration={300} />
                     </Button>
                 </nav>
+                </div>
 
                 {/* Mobile Menu Portal */}
                 <MobileMenu open={open}>
