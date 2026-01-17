@@ -1,7 +1,7 @@
 import "./index.css";
 import * as Lazy from "./pages";
 import Layout from "./Layout";
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -38,7 +38,9 @@ root.render(
         <Toaster />
         <LocationProvider>
           <TooltipProvider>
-            <RouterProvider router={router}></RouterProvider>
+            <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+              <RouterProvider router={router}></RouterProvider>
+            </Suspense>
           </TooltipProvider>
         </LocationProvider>
       </AuthProvider>

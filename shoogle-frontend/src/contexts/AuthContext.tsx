@@ -41,8 +41,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const res = await api.get("/auth/status");
         setUser(res.data.data);
-      } catch (error) {
-        console.log("error setting User", error.response.data);
+      } catch (error: any) {
+        console.log("error setting User", error?.response?.data || error?.message || error);
       } finally {
         setUserLoading(false);
       }

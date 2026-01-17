@@ -76,27 +76,27 @@ export function Header() {
 
     const NavLinks = () => (
         <>
-            <Link to="/" className="text-sm font-medium hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+            <Link to="/" className="text-sm font-medium text-[#2D1B69] hover:text-[#7C3AED] transition-colors" onClick={() => setOpen(false)}>
                 Home
             </Link>
 
             {user?.seller ? (
                 <>
-                    <Link to="/dashboard" className="text-sm font-medium hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+                    <Link to="/dashboard" className="text-sm font-medium text-gray-700 hover:text-[#7C3AED] transition-colors" onClick={() => setOpen(false)}>
                         Dashboard
                     </Link>
-                    <Link to="/dashboard/listings" className="text-sm font-medium hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+                    <Link to="/dashboard/listings" className="text-sm font-medium text-gray-700 hover:text-[#7C3AED] transition-colors" onClick={() => setOpen(false)}>
                         My Listings
                     </Link>
-                    <Link to="/discover" className="text-sm font-medium hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+                    <Link to="/discover" className="text-sm font-medium text-gray-700 hover:text-[#7C3AED] transition-colors" onClick={() => setOpen(false)}>
                         Search
                     </Link>
-                    <Link to="/dashboard/profile" className="text-sm font-medium hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+                    <Link to="/dashboard/profile" className="text-sm font-medium text-gray-700 hover:text-[#7C3AED] transition-colors" onClick={() => setOpen(false)}>
                         Profile
                     </Link>
                 </>
             ) : (
-                <Link to="/discover" className="text-sm font-medium hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+                <Link to="/discover" className="text-sm font-medium text-gray-700 hover:text-[#7C3AED] transition-colors" onClick={() => setOpen(false)}>
                     Search
                 </Link>
             )}
@@ -106,49 +106,59 @@ export function Header() {
     return (
         <>
             <header
-                className={cn('sticky top-0 z-50 w-full border-b border-transparent transition-all duration-300', {
-                    'bg-background/95 supports-[backdrop-filter]:bg-background/50 border-border backdrop-blur-lg':
+                className={cn('sticky top-0 z-50 w-full bg-gradient-to-b from-purple-50/30 via-pink-50/10 to-transparent backdrop-blur-md transition-all duration-300', {
+                    'bg-white/70 supports-[backdrop-filter]:bg-white/60 border-b border-gray-200/50 backdrop-blur-lg':
                         scrolled,
                 })}
             >
-                <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center gap-8">
-                        {/* Logo */}
-                        <div className="flex-shrink-0">
-                            <NavbarLogo />
-                        </div>
-
-                        {/* Desktop Navigation */}
-                        <div className="hidden md:flex items-center space-x-8">
-                            <NavLinks />
-                        </div>
+                <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 relative">
+                    {/* Logo - Left */}
+                    <div className="flex-shrink-0 z-10">
+                        <NavbarLogo />
                     </div>
 
-                    {/* Desktop Auth Buttons */}
-                    <div className="hidden md:flex items-center gap-4">
+                    {/* Desktop Navigation - Center */}
+                    <div className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2 z-10">
+                        <Link to="/" className="text-sm font-medium text-[#2D1B69] hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+                            Home
+                        </Link>
+                        <Link to="/discover" className="text-sm font-medium text-gray-700 hover:text-primary transition-colors" onClick={() => setOpen(false)}>
+                            Search
+                        </Link>
+                    </div>
+
+                    {/* Desktop Auth Buttons - Right */}
+                    <div className="hidden md:flex items-center gap-3 z-10">
                         {isAuthenticated && user.name !== "User" ? (
-                            <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-2">
+                            <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-2 text-gray-700 hover:text-[#7C3AED]">
                                 Logout
                                 <LogOut size={16} />
                             </Button>
                         ) : (
                             <>
-                                <Button variant="ghost" onClick={handleLogin}>
-                                    Sign In
+                                <Button 
+                                    variant="outline" 
+                                    onClick={handleLogin}
+                                    className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50 rounded-lg px-4 py-2"
+                                >
+                                    Log In
                                 </Button>
-                                <Button onClick={handleSignUp}>
+                                <Button 
+                                    onClick={handleSignUp}
+                                    className="rounded-lg px-4 py-2"
+                                >
                                     Get Started
                                 </Button>
                             </>
                         )}
                     </div>
 
-                    {/* Mobile Menu Toggle */}
+                    {/* Mobile Menu Toggle - Right */}
                     <Button
                         size="icon"
                         variant="ghost"
                         onClick={() => setOpen(!open)}
-                        className="md:hidden"
+                        className="md:hidden z-10"
                         aria-expanded={open}
                         aria-controls="mobile-menu"
                         aria-label="Toggle menu"
@@ -174,10 +184,17 @@ export function Header() {
                                 </Button>
                             ) : (
                                 <>
-                                    <Button variant="outline" onClick={handleLogin} className="w-full">
-                                        Sign In
+                                    <Button 
+                                        variant="outline" 
+                                        onClick={handleLogin} 
+                                        className="w-full bg-white text-gray-700 border-gray-300 hover:bg-gray-50 rounded-lg"
+                                    >
+                                        Log In
                                     </Button>
-                                    <Button onClick={handleSignUp} className="w-full">
+                                    <Button 
+                                        onClick={handleSignUp} 
+                                        className="w-full rounded-lg"
+                                    >
                                         Get Started
                                     </Button>
                                 </>

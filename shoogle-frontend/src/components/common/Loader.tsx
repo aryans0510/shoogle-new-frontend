@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import loader from "@/assets/loader.png";
 
 export default function Loader() {
