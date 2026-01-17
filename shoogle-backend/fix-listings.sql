@@ -1,0 +1,1 @@
+UPDATE listings SET visible_in_discovery = true WHERE visible_in_discovery = false;

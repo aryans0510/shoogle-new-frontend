@@ -1,0 +1,24 @@
+// DB steps 
+| Step | Action                       | Notes                                               |
+| ---- | ---------------------------- | --------------------------------------------------- |
+| 1    | Export data from Supabase    | Use `pg_dump` or Supabase “Data Export” feature     |
+| 2    | Set up AWS RDS Postgres      | Create DB, enable same extensions (like `pgcrypto`) |
+| 3    | Restore into RDS             | Use `psql` to import `.sql` dump                    |
+| 4    | Configure Prisma             | Point `DATABASE_URL` to RDS                         |
+| 5    | Run `prisma db pull`         | Only include `auth` + `public` schemas              |
+| 6    | Clean your schema.prisma     | Remove unused models (e.g., MFA, flow_state)        |
+| 7    | Test API routes with Fastify | Start replacing Supabase calls with Prisma queries  |
+
+
+
+
+// Enable extensions
+First, drop the _prisma_migrations table from database and also delete the prisma/migrations directory.
+Run the migrate dev command with the --create-only flag to generate a new, empty migration file. You can name it to reflect its purpose. Create migration file based on diff between latest changes and the most recent migration, but don't apply it yet.
+    npx prisma migrate dev --create-only --name enable_pg_trgm
+Add the CREATE EXTENSION command to the new migration file
+    CREATE EXTENSION IF NOT EXISTS pg_trgm;
+    -- CREATE EXTENSION IF NOT EXISTS postgis; run this as postgres superuser in your database.
+Apply the migrations now after enabling the extensions.
+    npx prisma migrate dev
+Now your extension errors should disappear when you execute the above command.

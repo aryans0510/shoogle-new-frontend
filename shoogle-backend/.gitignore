@@ -1,0 +1,15 @@
+node_modules
+
+# Output directory
+dist 
+
+# Environment variables
+.env
+.env.production
+
+# Prisa
+/generated/prisma
+
+
+# Logs
+*.logs
